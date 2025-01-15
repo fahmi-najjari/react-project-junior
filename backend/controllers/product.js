@@ -23,10 +23,34 @@ module.exports = {
   deleteProduct: async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await Product.destroy({ where: { id } });
+      const deleted = await Product.destroy({ where: { id } })
+       if (!deleted) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
       res.status(201).json(deleted);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      throw error
+     // res.status(500).json({ error: error.message });
     }
   },
+  updateProduct:async(req,res)=>{
+    try {
+      const {id}=req.params
+      const {name , price, description, imageUrl}=req.body
+      const product = await Product.findByPk(id)
+      if (!product) {
+        return res.status(404).json({ error: 'Product not found' })
+      }
+      product.name =name || product.name
+      product.description= description || product.description
+      product.price= price || product.price
+      product.imageUrl= imageUrl || product.imageUrl
+      
+      await product.save()
+      res.status(202).json(product)
+    } catch (error) {
+      throw error
+      
+    }
+  }
 };
